@@ -24,7 +24,9 @@ for line in sys.stdin:
 endef
 export PRINT_HELP_PYSCRIPT
 
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
+PYTHON := python3
+
+BROWSER := $(PYTHON) -c "$$BROWSER_PYSCRIPT"
 
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
@@ -48,12 +50,19 @@ clean:  ## clean all build, python, and testing files
 build: ## run tox / run tests and lint
 	tox
 
+lint:
+	black {{cookiecutter.project_slug}}
+
+check-lint:
+	tox -e lint
+
 gen-docs: ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/{{cookiecutter.project_slug}}*.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ {{ cookiecutter.project_slug }} **/tests/
-	$(MAKE) -C docs html
+	tox -e docs
 
-docs: ## generate Sphinx HTML documentation, including API docs, and serve to browser
-	make gen-docs
+docs: gen-docs ## generate Sphinx HTML documentation, including API docs, and serve to browser
 	$(BROWSER) docs/_build/html/index.html
+
+test:
+	$(PYTHON) -m pytest {{cookiecutter.project_slug}}/tests

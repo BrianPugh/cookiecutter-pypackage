@@ -5,11 +5,17 @@
 
 from setuptools import find_packages, setup
 
-with open("README.md") as readme_file:
-    readme = readme_file.read()
+with open("README.md") as f:
+    readme = f.read()
+
+with open("CHANGELOG.md") as f:
+    changelog = f.read()
 
 setup_requirements = [
     "pytest-runner>=5.2",
+]
+
+requirements = [
 ]
 
 test_requirements = [
@@ -23,8 +29,6 @@ test_requirements = [
 ]
 
 dev_requirements = [
-    *setup_requirements,
-    *test_requirements,
     "bumpversion>=0.6.0",
     "coverage>=5.1",
     "ipython>=7.15.0",
@@ -37,17 +41,27 @@ dev_requirements = [
     "wheel>=0.34.2",
 ]
 
-requirements = []
-
 extra_requirements = {
     "setup": setup_requirements,
-    "test": test_requirements,
-    "dev": dev_requirements,
+    "test": [
+        *setup_requirements,
+        *requirements,
+        *test_requirements,
+    ],
+    "dev": [
+        *setup_requirements,
+        *requirements,
+        *test_requirements,
+        *dev_requirements,
+    ],
     "all": [
         *requirements,
+        *setup_requirements,
+        *test_requirements,
         *dev_requirements,
-    ]
+    ],
 }
+
 
 {%- set license_classifiers = {
     "Allen Institute Software License": "License :: Free for non-commercial use",
@@ -68,15 +82,11 @@ setup(
         "{{ license_classifiers[cookiecutter.open_source_license] }}",
 {%- endif %}
         "Natural Language :: English",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
     description="{{ cookiecutter.project_short_description }}",
-    entry_points={
-        "console_scripts": [
-            "my_example={{ cookiecutter.project_slug }}.bin.my_example:main"
-        ],
-    },
     install_requires=requirements,
 {%- if cookiecutter.open_source_license in license_classifiers %}
     license="{{ cookiecutter.open_source_license }}",
@@ -87,7 +97,7 @@ setup(
     keywords="{{ cookiecutter.project_slug }}",
     name="{{ cookiecutter.project_slug }}",
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*"]),
-    python_requires=">=3.7",
+    python_requires=">=3.6",
     setup_requires=setup_requirements,
     test_suite="{{ cookiecutter.project_slug }}/tests",
     tests_require=test_requirements,
